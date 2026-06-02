@@ -23,16 +23,3 @@ obj.AddMember(new CString(10, wide: true));
 obj.AddMember(inner);
 
 MemoryViewer.DisplayMemoryView(obj);
-
-Console.WriteLine($"Size of CObject with one byte member: {obj.Size} bytes");
-
-unsafe
-{
-
-
-	int size = sizeof(TestStruct);
-
-	
-	Console.WriteLine($"Size of TestStruct: {size} bytes");
-}
-
