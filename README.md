@@ -32,6 +32,18 @@ aligned to `min(member.Alignment, pack)`. The struct's total size is rounded up 
 multiple of its largest member alignment (trailing **object padding**), and gaps inserted
 to align members appear as **data padding**.
 
+> **Note on the default pack value:** In a typical C or TwinCAT application the effective
+> pack value isn't fixed — it commonly defaults to **4 on 32-bit** targets and **8 on
+> 64-bit** targets, because it follows the natural word size of the OS / hardware (and the
+> compiler / PLC runtime). The same source can therefore lay out differently across
+> platforms unless an explicit pack is set (`#pragma pack` / `{attribute 'pack_mode'}`).
+> Pick the pack value here that matches your target to reproduce its layout.
+>
+> A `pack_mode` (or member/object `pack`) of **`0` means "natural alignment"** — i.e. no
+> override, so each member uses its own natural alignment capped only by the surrounding
+> context's default pack. In this library, passing `pack: 0` to a member/object falls back
+> to the `Context` default pack for that reason.
+
 ## Project structure
 
 | Project | Type | Purpose |
