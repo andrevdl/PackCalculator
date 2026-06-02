@@ -2,22 +2,43 @@
 
 namespace PackCalculator;
 
+/// <summary>
+/// A composite object (struct) built from ordered members. Computes member offsets, inter-member
+/// (data) padding, trailing (object) padding, total size, and alignment following C / TwinCAT /
+/// <see cref="System.Runtime.InteropServices.StructLayoutAttribute"/> rules.
+/// </summary>
+/// <param name="name">The display name of the object.</param>
+/// <param name="context">The layout context providing the default packing alignment.</param>
+/// <param name="objectPack">
+/// The object's own pack value, or <c>0</c> to use the context default.
+/// </param>
 [DebuggerDisplay("Name = {Name}, Size = {Size}, Pack = {objectPack}")]
-internal struct CObject(string name, Context context, byte objectPack) : IObject
+public struct CObject(string name, Context context, byte objectPack) : IObject
 {
+	/// <inheritdoc/>
 	public readonly string Name => name;
 
 	private int _size;
 	private int _maxAlignment = 1;
 
+	/// <inheritdoc/>
 	public readonly int Size => _size + CalcPaddingTo(_size, _maxAlignment);
 
+	/// <inheritdoc/>
 	public readonly int Alignment => _maxAlignment;
 
 	private readonly List<(int ByteOffset, IObject Member)> _members = [];
 
+	/// <summary>
+	/// Gets the members added so far, each paired with its computed byte offset within the object.
+	/// </summary>
 	public readonly IReadOnlyList<(int ByteOffset, IObject Member)> Members => _members;
 
+	/// <summary>
+	/// Appends a member to the object, inserting any leading padding required to satisfy the
+	/// member's alignment and updating the object's size and overall alignment.
+	/// </summary>
+	/// <param name="member">The member to add.</param>
 	public void AddMember(IObject member)
 	{
 		int alignment = Math.Min(member.Alignment, context.CalcPack(objectPack));
@@ -33,6 +54,7 @@ internal struct CObject(string name, Context context, byte objectPack) : IObject
 	private static int CalcPaddingTo(int currentSize, int alignment)
 		=> (alignment - (currentSize % alignment)) % alignment;
 
+	/// <inheritdoc/>
 	public readonly List<(MemoryType Type, string? Name, int Size)> ToMemoryView()
 	{
 		List<(MemoryType Type, string? Name, int Size)> view = [];

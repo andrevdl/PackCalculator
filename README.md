@@ -32,6 +32,19 @@ aligned to `min(member.Alignment, pack)`. The struct's total size is rounded up 
 multiple of its largest member alignment (trailing **object padding**), and gaps inserted
 to align members appear as **data padding**.
 
+## Project structure
+
+| Project | Type | Purpose |
+|---------|------|---------|
+| `PackCalculator` | Class library | The reusable layout engine — reference this from your own code. |
+| `PackCalculator.Example` | Console app | A runnable demo showing how to compose objects and print a memory map. |
+
+Integrate by adding a reference to the `PackCalculator` library:
+
+```xml
+<ProjectReference Include="..\PackCalculator\PackCalculator.csproj" />
+```
+
 ## Usage
 
 ```csharp
@@ -144,3 +157,18 @@ Test
     Object Padding:	7 bytes
 End:	64 bytes
 ```
+
+## Releasing
+
+Versioning is handled automatically by [MinVer](https://github.com/adamralph/minver) from Git
+tags (tag prefix `v`, e.g. tag `v1.0.0` → package version `1.0.0`). To cut and publish a release:
+
+```powershell
+git tag v1.0.0
+git push origin v1.0.0
+dotnet pack PackCalculator\PackCalculator.csproj -c Release
+dotnet nuget push PackCalculator\bin\Release\PackCalculator.1.0.0.nupkg --api-key <KEY> --source https://api.nuget.org/v3/index.json
+```
+
+> Replace `v1.0.0` / `1.0.0` with the version you are releasing, and `<KEY>` with your nuget.org API key.
+> Without a tag, builds produce a `0.0.0-alpha.0.<height>` pre-release version.
